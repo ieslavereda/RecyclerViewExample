@@ -16,8 +16,8 @@ import java.util.List;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-    private List<Usuario> list;
-    private LayoutInflater inflater;
+    private final List<Usuario> list;
+    private final LayoutInflater inflater;
     private View.OnClickListener onClickListener;
 
     public MyRecyclerViewAdapter(Context context, List<Usuario> list){
@@ -33,11 +33,12 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         return new ViewHolder(view);
     }
 
+
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
         Usuario u = list.get(position);
-        holder.title.setText(u.getApellidos() + ", " + u.getNombre());
+        holder.title.setText(u.getApellidos().concat(", ").concat(u.getNombre()));
         holder.subtitle.setText(u.getOficio());
         switch (u.getImagen()){
             case 1 : holder.image.setImageResource(R.mipmap.ic_1_foreground);
