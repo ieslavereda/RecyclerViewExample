@@ -2,7 +2,6 @@ package com.example.myrecyclerviewexample;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import androidx.core.content.res.ResourcesCompat;
 import androidx.recyclerview.widget.DividerItemDecoration;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -13,7 +12,6 @@ import android.view.View;
 import android.widget.Toast;
 
 import com.example.myrecyclerviewexample.model.Model;
-import com.example.myrecyclerviewexample.model.MyRecyclerViewAdapter;
 import com.example.myrecyclerviewexample.model.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 
