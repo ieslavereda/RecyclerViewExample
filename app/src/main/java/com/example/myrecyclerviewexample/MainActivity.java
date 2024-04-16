@@ -3,34 +3,86 @@ package com.example.myrecyclerviewexample;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
+import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.KeyEvent;
 import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myrecyclerviewexample.model.Model;
 import com.example.myrecyclerviewexample.model.Usuario;
 import com.google.android.material.snackbar.Snackbar;
+import com.google.android.material.textfield.TextInputLayout;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private RecyclerView recyclerView;
+    private ImageButton ibList;
+    private ImageButton ibGrid;
+    private boolean isListRecycler;
+    private MyRecyclerViewAdapter myRecyclerViewAdapter;
+    private EditText etSearch;
+    private TextInputLayout textInputLayout;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        recyclerView = findViewById(R.id.recycler);
+        isListRecycler = true;
+        String texto;
 
-        MyRecyclerViewAdapter myRecyclerViewAdapter = new MyRecyclerViewAdapter(this, Model.getInstance().getList());
+        if (savedInstanceState != null)
+            texto = savedInstanceState.getString("texto");
+
+        recyclerView = findViewById(R.id.recycler);
+        ibList = findViewById(R.id.ibList);
+        ibGrid = findViewById(R.id.ibGrid);
+        etSearch = findViewById(R.id.etSearch);
+        textInputLayout = findViewById(R.id.textInputLayout);
+
+        ibGrid.setOnClickListener(view -> {
+            isListRecycler = false;
+            updateRecycler();
+        });
+
+        ibList.setOnClickListener(view -> {
+            isListRecycler = true;
+            updateRecycler();
+        });
+
+        etSearch.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence charSequence, int i, int i1, int i2) {
+
+            }
+
+            @Override
+            public void afterTextChanged(Editable editable) {
+                search();
+            }
+        });
+
+        myRecyclerViewAdapter = new MyRecyclerViewAdapter(this, Model.getInstance().getList());
         myRecyclerViewAdapter.setOnClickListener(this);
         recyclerView.setAdapter(myRecyclerViewAdapter);
-
-        LinearLayoutManager myLinearLayoutManager = new LinearLayoutManager(this);
-        recyclerView.setLayoutManager(myLinearLayoutManager);
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, RecyclerView.HORIZONTAL));
+        recyclerView.addItemDecoration(new DividerItemDecoration(this, RecyclerView.VERTICAL));
 
         ItemTouchHelper mIth = new ItemTouchHelper(
                 new ItemTouchHelper.SimpleCallback(ItemTouchHelper.UP | ItemTouchHelper.DOWN, ItemTouchHelper.LEFT) {
@@ -53,26 +105,47 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         myRecyclerViewAdapter.notifyItemRemoved(position);
 
                         Snackbar.make(recyclerView, "Deleted " + usuario.getNombre(), Snackbar.LENGTH_LONG)
-                                .setAction("Undo", new View.OnClickListener() {
-                            @Override
-                            public void onClick(View v) {
-                                Model.getInstance().getList().add(position, usuario);
-                                myRecyclerViewAdapter.notifyItemInserted(position);
-                            }
-                        }).show();
+                                .setAction("Undo", v -> {
+                                    Model.getInstance().getList().add(position, usuario);
+                                    myRecyclerViewAdapter.notifyItemInserted(position);
+                                }).show();
                     }
 
                 });
         mIth.attachToRecyclerView(recyclerView);
 
-        DividerItemDecoration dividerItemDecoration = new DividerItemDecoration(this, RecyclerView.VERTICAL);
-        recyclerView.addItemDecoration(dividerItemDecoration);
+        updateRecycler();
 
+    }
+
+    private void search() {
+        myRecyclerViewAdapter.search(etSearch.getText().toString());
+    }
+
+    private void updateRecycler() {
+
+        if (isListRecycler) {
+            myRecyclerViewAdapter.setItem_layout(R.layout.simple_list_element);
+            recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        } else {
+            myRecyclerViewAdapter.setItem_layout(R.layout.simple_grid_element);
+            recyclerView.setLayoutManager(new GridLayoutManager(this, 2));
+        }
+
+        // Eliminamos el pool de vistas del recycler, por lo que forzamos la creacion otra vez de las vistas
+        recyclerView.getRecycledViewPool().clear();
+
+    }
+
+    @Override
+    protected void onSaveInstanceState(@NonNull Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putString("texto", "Esto se guarda");
     }
 
     @Override
     public void onClick(View view) {
         Usuario u = Model.getInstance().getList().get(recyclerView.getChildAdapterPosition(view));
-        Toast.makeText(this,"Clic en " + u.getOficio(),Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Clic en " + u.getOficio(), Toast.LENGTH_SHORT).show();
     }
 }

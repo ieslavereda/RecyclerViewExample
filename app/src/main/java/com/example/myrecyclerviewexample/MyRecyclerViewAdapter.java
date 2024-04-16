@@ -12,32 +12,46 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.myrecyclerviewexample.model.Usuario;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAdapter.ViewHolder> {
 
-    private final List<Usuario> list;
+    private List<Usuario> list_original;
+    private List<Usuario> list_showed;
     private final LayoutInflater inflater;
     private View.OnClickListener onClickListener;
+    private int item_layout;
 
     public MyRecyclerViewAdapter(Context context, List<Usuario> list){
-        this.list = list;
+        this.list_original = list;
+        this.list_showed = new ArrayList<>(list);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(R.layout.simple_element,parent,false);
+        View view = inflater.inflate(item_layout,parent,false);
         view.setOnClickListener(onClickListener);
         return new ViewHolder(view);
     }
 
+    public void setItem_layout(int item_layout) {
+        this.item_layout = item_layout;
+    }
+    public void search(String text){
+        list_showed = list_original.stream()
+                .filter(usuario -> (usuario.getNombre()+" "+usuario.getApellidos()).toLowerCase().contains(text.toLowerCase()))
+                .collect(Collectors.toList());
+        notifyDataSetChanged();
+    }
 
     @Override
     public void onBindViewHolder(@NonNull ViewHolder holder, int position) {
 
-        Usuario u = list.get(position);
+        Usuario u = list_showed.get(position);
         holder.title.setText(u.getApellidos().concat(", ").concat(u.getNombre()));
         holder.subtitle.setText(u.getOficio());
         switch (u.getImagen()){
@@ -70,7 +84,7 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     @Override
     public int getItemCount() {
-        return list.size();
+        return list_showed.size();
     }
 
     public void setOnClickListener(View.OnClickListener onClickListener) {
