@@ -1,5 +1,14 @@
 package com.example.myrecyclerviewexample;
 
+
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.view.View;
+import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.DividerItemDecoration;
@@ -8,20 +17,14 @@ import androidx.recyclerview.widget.ItemTouchHelper;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
-import android.widget.EditText;
-import android.widget.ImageButton;
-import android.widget.TextView;
-import android.widget.Toast;
-
 import com.example.myrecyclerviewexample.model.Model;
 import com.example.myrecyclerviewexample.model.Usuario;
 import com.google.android.material.snackbar.Snackbar;
 import com.google.android.material.textfield.TextInputLayout;
+
+import com.example.myrecyclerviewexample.MyRecyclerViewAdapter.Sort;
+
+import static com.example.myrecyclerviewexample.MyRecyclerViewAdapter.Sort.*;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -32,6 +35,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private MyRecyclerViewAdapter myRecyclerViewAdapter;
     private EditText etSearch;
     private TextInputLayout textInputLayout;
+    private ImageButton ibSort;
+    private Sort sort;
 
 
     @Override
@@ -40,6 +45,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         setContentView(R.layout.activity_main);
 
         isListRecycler = true;
+        sort = NORMAL;
         String texto;
 
         if (savedInstanceState != null)
@@ -48,6 +54,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView = findViewById(R.id.recycler);
         ibList = findViewById(R.id.ibList);
         ibGrid = findViewById(R.id.ibGrid);
+        ibSort = findViewById(R.id.ibSort);
         etSearch = findViewById(R.id.etSearch);
         textInputLayout = findViewById(R.id.textInputLayout);
 
@@ -59,6 +66,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         ibList.setOnClickListener(view -> {
             isListRecycler = true;
             updateRecycler();
+        });
+
+        ibSort.setOnClickListener(v -> {
+            sort = sort.next();
+            myRecyclerViewAdapter.sort(sort);
+
+            switch (sort){
+                case ASC:ibSort.setImageDrawable(getDrawable(android.R.drawable.arrow_up_float));
+                break;
+                case DESC:ibSort.setImageDrawable(getDrawable(android.R.drawable.arrow_down_float));
+                    break;
+                default: ibSort.setImageDrawable(getDrawable(android.R.drawable.checkbox_off_background));
+            }
         });
 
         etSearch.addTextChangedListener(new TextWatcher() {

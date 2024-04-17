@@ -23,17 +23,19 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     private final LayoutInflater inflater;
     private View.OnClickListener onClickListener;
     private int item_layout;
+    private String filter;
 
-    public MyRecyclerViewAdapter(Context context, List<Usuario> list){
+    public MyRecyclerViewAdapter(Context context, List<Usuario> list) {
         this.list_original = list;
         this.list_showed = new ArrayList<>(list);
         inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        filter="";
     }
 
     @NonNull
     @Override
     public ViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = inflater.inflate(item_layout,parent,false);
+        View view = inflater.inflate(item_layout, parent, false);
         view.setOnClickListener(onClickListener);
         return new ViewHolder(view);
     }
@@ -41,9 +43,11 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
     public void setItem_layout(int item_layout) {
         this.item_layout = item_layout;
     }
-    public void search(String text){
+
+    public void search(String filter) {
+        this.filter=filter;
         list_showed = list_original.stream()
-                .filter(usuario -> (usuario.getNombre()+" "+usuario.getApellidos()).toLowerCase().contains(text.toLowerCase()))
+                .filter(usuario -> (usuario.getNombre() + " " + usuario.getApellidos()).toLowerCase().contains(filter.toLowerCase()))
                 .collect(Collectors.toList());
         notifyDataSetChanged();
     }
@@ -54,30 +58,42 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
         Usuario u = list_showed.get(position);
         holder.title.setText(u.getApellidos().concat(", ").concat(u.getNombre()));
         holder.subtitle.setText(u.getOficio());
-        switch (u.getImagen()){
-            case 1 : holder.image.setImageResource(R.mipmap.ic_1_foreground);
-            break;
-            case 2 : holder.image.setImageResource(R.mipmap.ic_2_foreground);
+        switch (u.getImagen()) {
+            case 1:
+                holder.image.setImageResource(R.mipmap.ic_1_foreground);
                 break;
-            case 3 : holder.image.setImageResource(R.mipmap.ic_3_foreground);
+            case 2:
+                holder.image.setImageResource(R.mipmap.ic_2_foreground);
                 break;
-            case 4 : holder.image.setImageResource(R.mipmap.ic_4_foreground);
+            case 3:
+                holder.image.setImageResource(R.mipmap.ic_3_foreground);
                 break;
-            case 5 : holder.image.setImageResource(R.mipmap.ic_5_foreground);
+            case 4:
+                holder.image.setImageResource(R.mipmap.ic_4_foreground);
                 break;
-            case 6 : holder.image.setImageResource(R.mipmap.ic_6_foreground);
+            case 5:
+                holder.image.setImageResource(R.mipmap.ic_5_foreground);
                 break;
-            case 7 : holder.image.setImageResource(R.mipmap.ic_7_foreground);
+            case 6:
+                holder.image.setImageResource(R.mipmap.ic_6_foreground);
                 break;
-            case 8 : holder.image.setImageResource(R.mipmap.ic_8_foreground);
+            case 7:
+                holder.image.setImageResource(R.mipmap.ic_7_foreground);
                 break;
-            case 9 : holder.image.setImageResource(R.mipmap.ic_9_foreground);
+            case 8:
+                holder.image.setImageResource(R.mipmap.ic_8_foreground);
                 break;
-            case 10 : holder.image.setImageResource(R.mipmap.ic_10_foreground);
+            case 9:
+                holder.image.setImageResource(R.mipmap.ic_9_foreground);
                 break;
-            case 11 : holder.image.setImageResource(R.mipmap.ic_11_foreground);
+            case 10:
+                holder.image.setImageResource(R.mipmap.ic_10_foreground);
                 break;
-            case 12 : holder.image.setImageResource(R.mipmap.ic_12_foreground);
+            case 11:
+                holder.image.setImageResource(R.mipmap.ic_11_foreground);
+                break;
+            case 12:
+                holder.image.setImageResource(R.mipmap.ic_12_foreground);
                 break;
         }
     }
@@ -89,6 +105,24 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
 
     public void setOnClickListener(View.OnClickListener onClickListener) {
         this.onClickListener = onClickListener;
+    }
+
+    public void sort(Sort sort) {
+        switch (sort) {
+            case ASC:
+                list_showed = list_showed.stream()
+                        .sorted((t1, t2) -> (t1.getApellidos() + t1.getNombre()).compareToIgnoreCase(t2.getApellidos() + t2.getNombre()))
+                        .collect(Collectors.toList());
+                break;
+            case DESC:
+                list_showed = list_showed.stream()
+                        .sorted((t1, t2) -> (t2.getApellidos() + t2.getNombre()).compareToIgnoreCase(t1.getApellidos() + t1.getNombre()))
+                        .collect(Collectors.toList());
+                break;
+            default:
+                search(filter);
+        }
+        notifyDataSetChanged();
     }
 
     public static class ViewHolder extends RecyclerView.ViewHolder {
@@ -104,5 +138,15 @@ public class MyRecyclerViewAdapter extends RecyclerView.Adapter<MyRecyclerViewAd
             subtitle = itemView.findViewById(R.id.subtitle);
         }
 
+    }
+
+    enum Sort {
+        NORMAL, ASC, DESC;
+
+        Sort next() {
+            if (this.equals(NORMAL)) return ASC;
+            if (this.equals(ASC)) return DESC;
+            return NORMAL;
+        }
     }
 }
